@@ -104,3 +104,38 @@ func TestRunHandoff(t *testing.T) {
 		t.Error("core func was not called")
 	}
 }
+
+func TestOptionsVersionApplied(t *testing.T) {
+	root := &cobra.Command{Use: "t"}
+	app := defaultTestApp()
+	if err := Configure(root, app, WithConfigSource(fakeSource{}), WithEnvPrefix("APP"), WithVersion("9.9.9")); err != nil {
+		t.Fatal(err)
+	}
+	if root.Version != "9.9.9" {
+		t.Errorf("root.Version = %q, want 9.9.9", root.Version)
+	}
+}
+
+func TestObservabilityProducesRecordingSpan(t *testing.T) {
+	app := defaultTestApp()
+	app.Features.Observability = true
+	app.Observability.RuntimeMetrics = false
+	app.Observability.Signals = obsv.Signals{Traces: true}
+	rt := runWith(t, app)
+	_, span := rt.Tracer.Start(context.Background(), "op")
+	if !span.IsRecording() {
+		t.Error("real tracer should produce a recording span")
+	}
+	span.End()
+	_ = rt.Shutdown(context.Background())
+}
+
+func TestNoObservabilityNoRecordingSpan(t *testing.T) {
+	app := defaultTestApp() // observability off → no-op tracer
+	rt := runWith(t, app)
+	_, span := rt.Tracer.Start(context.Background(), "op")
+	if span.IsRecording() {
+		t.Error("no-op tracer span should not be recording")
+	}
+	span.End()
+}

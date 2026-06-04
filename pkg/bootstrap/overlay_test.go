@@ -58,3 +58,17 @@ func TestOverlayNoFlagsKeepsDefaults(t *testing.T) {
 		t.Errorf("defaults changed without flags: %+v", b.Logger)
 	}
 }
+
+func TestOverlayFormatSourceEnv(t *testing.T) {
+	b := DefaultBase()
+	overlay(parsedFlags(t, "--log-format", "text", "--log-source", "--env", "prod").PersistentFlags(), &b)
+	if b.Logger.Format != "text" {
+		t.Errorf("format = %q, want text", b.Logger.Format)
+	}
+	if !b.Logger.AddSource {
+		t.Error("--log-source should set AddSource")
+	}
+	if b.Environment != "prod" {
+		t.Errorf("env = %q, want prod", b.Environment)
+	}
+}

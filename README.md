@@ -80,6 +80,33 @@ defer span.End()
 Disabled (`Enabled:false`) yields a no-op stack — `LogSink()` is nil (logger skips
 it), `Tracer`/`Meter` are no-ops, `Shutdown` does nothing.
 
+## Application runtime (pkg/bootstrap)
+
+Wire one wrapper from your Cobra CLI to your core app — config, logging, and
+observability included:
+
+```go
+type App struct {
+    bootstrap.Base `mapstructure:",squash" yaml:",inline"`
+    Greeting       string `mapstructure:"greeting"`
+}
+
+app := &App{Base: bootstrap.DefaultBase(), Greeting: "hello"}
+root := &cobra.Command{Use: "myapp", RunE: func(cmd *cobra.Command, _ []string) error {
+    return bootstrap.Run(cmd, func(ctx context.Context, rt *bootstrap.Runtime) error {
+        rt.Logger.InfoContext(ctx, "running", slog.String("greeting", bootstrap.ConfigOf[*App](rt).Greeting))
+        return rt.Shutdown(ctx)
+    })
+}}
+bootstrap.Configure(root, app, bootstrap.WithAppName("myapp"), bootstrap.WithVersion("1.0.0"))
+root.Execute()
+```
+
+Always-present flags (highest precedence over file+env): `-c/--config`, `--env`,
+`--log-level`, `-v/-q`, `--log-format`, `--log-source`, `--no-redact`, `--otel`,
+`--otel-endpoint`, `--otel-protocol`, `--version`. Enable subsystems via the
+`features:` config block or flags.
+
 ## License
 
 BSD-3-Clause.
