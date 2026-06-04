@@ -2,6 +2,7 @@ package logger
 
 import (
 	"reflect"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -95,7 +96,8 @@ func TestMaskKeep(t *testing.T) {
 func TestHashStableAndSalted(t *testing.T) {
 	a := NewRedactor("salt-a")
 	b := NewRedactor("salt-b")
-	if a.hash("x") != a.hash("x") {
+	h1 := a.hash("x")
+	if h1 != a.hash("x") {
 		t.Error("hash not stable for same salt")
 	}
 	if a.hash("x") == b.hash("x") {
@@ -107,19 +109,19 @@ func TestHashStableAndSalted(t *testing.T) {
 }
 
 func TestTypeFlags(t *testing.T) {
-	if !infoFor(reflect.TypeOf(user{})).hasPII {
+	if !infoFor(reflect.TypeFor[user]()).hasPII {
 		t.Error("user{} should report hasPII")
 	}
 	type plain struct {
 		A string `json:"a"`
 	}
-	if infoFor(reflect.TypeOf(plain{})).hasPII {
+	if infoFor(reflect.TypeFor[plain]()).hasPII {
 		t.Error("plain{} should not report hasPII")
 	}
 	type box struct {
 		V any `json:"v"`
 	}
-	if !infoFor(reflect.TypeOf(box{})).hasIface {
+	if !infoFor(reflect.TypeFor[box]()).hasIface {
 		t.Error("box{} should report hasIface")
 	}
 }
@@ -131,7 +133,7 @@ func TestMaxDepth(t *testing.T) {
 	}
 	// Build a chain deeper than defaultMaxDepth.
 	var head *node
-	for i := 0; i < defaultMaxDepth+3; i++ {
+	for range defaultMaxDepth + 3 {
 		head = &node{Secret: "s", Next: head}
 	}
 	v := NewRedactor("s").Value(reflect.ValueOf(*head), 0)
@@ -155,11 +157,7 @@ func containsMarker(a any) bool {
 			}
 		}
 	case []any:
-		for _, v := range x {
-			if containsMarker(v) {
-				return true
-			}
-		}
+		return slices.ContainsFunc(x, containsMarker)
 	}
 	return false
 }
