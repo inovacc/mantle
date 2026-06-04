@@ -52,6 +52,9 @@ func TestRedactHandlerScrubsBeforeNext(t *testing.T) {
 	if m["ssn"] != "[REDACTED]" {
 		t.Errorf("next handler saw raw ssn: %v", m["ssn"])
 	}
+	if m["name"] != "Ada Lovelace" {
+		t.Errorf("non-PII field altered or dropped: %v", m["name"])
+	}
 }
 
 func TestTraceHandlerInjectsIDs(t *testing.T) {
@@ -105,8 +108,8 @@ func TestFanoutJoinsErrors(t *testing.T) {
 	b.err = errors.New("boom")
 	h := fanoutHandler{handlers: []slog.Handler{a, b}}
 	err := h.Handle(context.Background(), record(slog.String("k", "v")))
-	if err == nil || err.Error() != "boom" {
-		t.Errorf("expected joined error, got %v", err)
+	if !errors.Is(err, b.err) {
+		t.Errorf("expected joined error to wrap b.err, got %v", err)
 	}
 	if _, ok := a.attrs["k"]; !ok {
 		t.Error("a failing sink suppressed a healthy one")
