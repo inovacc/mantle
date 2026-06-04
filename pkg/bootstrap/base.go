@@ -3,8 +3,8 @@ package bootstrap
 import (
 	"time"
 
-	"github.com/inovacc/logger/pkg/logger"
-	"github.com/inovacc/logger/pkg/obsv"
+	"github.com/inovacc/mantle/pkg/logger"
+	"github.com/inovacc/mantle/pkg/obsv"
 )
 
 // Features gates optional subsystems.

@@ -3,7 +3,7 @@ package bootstrap
 import (
 	"testing"
 
-	"github.com/inovacc/logger/pkg/logger"
+	"github.com/inovacc/mantle/pkg/logger"
 )
 
 // testApp is the in-package fixture: a user app squash-embedding Base.

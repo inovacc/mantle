@@ -7,8 +7,8 @@ import (
 	"io"
 	"log/slog"
 
-	"github.com/inovacc/logger/pkg/logger"
-	"github.com/inovacc/logger/pkg/obsv"
+	"github.com/inovacc/mantle/pkg/logger"
+	"github.com/inovacc/mantle/pkg/obsv"
 	"github.com/spf13/cobra"
 	"go.opentelemetry.io/otel/metric"
 	metricnoop "go.opentelemetry.io/otel/metric/noop"

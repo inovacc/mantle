@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/inovacc/logger/pkg/logger"
+	"github.com/inovacc/mantle/pkg/logger"
 )
 
 // safeWriter is a concurrency-safe sink for the stdout exporters' background

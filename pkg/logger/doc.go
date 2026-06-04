@@ -5,7 +5,7 @@
 //
 //   - A configured *slog.Logger writing JSON or text to a local sink, with extra
 //     fan-out sinks pluggable via WithSink (e.g. an OpenTelemetry bridge from
-//     github.com/inovacc/logger/pkg/obsv).
+//     github.com/inovacc/mantle/pkg/obsv).
 //   - Automatic correlation of every record with the active trace
 //     (trace_id / span_id) when the context carries a valid span.
 //   - PII redaction driven by struct tags. Tag a field with `pii:"..."` and the

@@ -5,7 +5,7 @@ import (
 	"io"
 	"testing"
 
-	"github.com/inovacc/logger/pkg/obsv"
+	"github.com/inovacc/mantle/pkg/obsv"
 	"github.com/spf13/cobra"
 )
 
