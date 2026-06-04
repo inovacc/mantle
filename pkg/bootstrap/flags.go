@@ -20,6 +20,7 @@ func registerFlags(root *cobra.Command) {
 	pf.Bool("otel", false, "enable OpenTelemetry observability")
 	pf.String("otel-endpoint", "", "OTLP endpoint host:port")
 	pf.String("otel-protocol", "", "OTLP protocol (grpc|http)")
+	pf.Bool("daemon", false, "run under the daemon supervisor")
 }
 
 // overlay applies CHANGED flags onto b (highest precedence). pflag.FlagSet.Visit
@@ -48,6 +49,8 @@ func overlay(fs *pflag.FlagSet, b *Base) {
 			b.Observability.Endpoint = f.Value.String()
 		case "otel-protocol":
 			b.Observability.Protocol = f.Value.String()
+		case "daemon":
+			b.Features.Daemon = true
 		}
 	})
 }

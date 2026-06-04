@@ -11,6 +11,7 @@ import (
 type Features struct {
 	Logging       bool `mapstructure:"logging"       yaml:"logging"`
 	Observability bool `mapstructure:"observability" yaml:"observability"`
+	Daemon        bool `mapstructure:"daemon"        yaml:"daemon"`
 }
 
 // Base is the wrapper-provided config block. A user app squash-embeds it:
