@@ -4,7 +4,7 @@ func scopeName(info ServiceInfo) string {
 	if info.Name != "" {
 		return info.Name
 	}
-	return "github.com/inovacc/logger"
+	return "github.com/inovacc/mantle"
 }
 
 // noopStack returns a Stack that does nothing: nil providers (accessors return
