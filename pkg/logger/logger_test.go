@@ -167,3 +167,72 @@ func TestConfigTags(t *testing.T) {
 		t.Errorf("HashSalt should be sensitive:\"true\", got %q", sf.Tag.Get("sensitive"))
 	}
 }
+
+func TestWithReplaceAttr(t *testing.T) {
+	var buf bytes.Buffer
+	rep := func(groups []string, a slog.Attr) slog.Attr {
+		if a.Key == "k" {
+			a.Key = "renamed"
+		}
+		return a
+	}
+	lg, err := New(Config{Output: &buf}, WithReplaceAttr(rep))
+	if err != nil {
+		t.Fatal(err)
+	}
+	lg.LogAttrs(context.Background(), slog.LevelInfo, "m", slog.String("k", "v"))
+	if !strings.Contains(buf.String(), `"renamed":"v"`) {
+		t.Errorf("ReplaceAttr not applied: %q", buf.String())
+	}
+}
+
+func TestInitWithHashSalt(t *testing.T) {
+	var buf bytes.Buffer
+	if _, err := Init(Config{Output: &buf, HashSalt: "testsalt"}); err != nil {
+		t.Fatal(err)
+	}
+	v := Safe(sampleUser()).LogValue()
+	m := valueToAny(v).(map[string]any)
+	got, _ := m["phone"].(string)
+	want := NewRedactor("testsalt").hash("+1-555-0100")
+	if got != want {
+		t.Errorf("Safe hash = %q, want salted %q (Init should sync the salt)", got, want)
+	}
+}
+
+func TestNewFormatText(t *testing.T) {
+	var buf bytes.Buffer
+	lg, err := New(Config{Output: &buf, Format: FormatText})
+	if err != nil {
+		t.Fatal(err)
+	}
+	lg.LogAttrs(context.Background(), slog.LevelInfo, "hello", slog.String("k", "v"))
+	out := strings.TrimSpace(buf.String())
+	if strings.HasPrefix(out, "{") {
+		t.Errorf("expected text format, got JSON-ish: %q", out)
+	}
+	if !strings.Contains(out, "k=v") {
+		t.Errorf("text output missing k=v: %q", out)
+	}
+}
+
+func TestWithRedactor(t *testing.T) {
+	var buf bytes.Buffer
+	rd := NewRedactor("custom")
+	lg, err := New(Config{Output: &buf, Redact: true, Level: "info"}, WithRedactor(rd), WithSink(newCapture()))
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Below-threshold line exercises Enabled's false path across the fanout.
+	lg.LogAttrs(context.Background(), slog.LevelDebug, "skip", slog.String("k", "v"))
+	lg.LogAttrs(context.Background(), slog.LevelInfo, "evt", slog.Any("user", sampleUser()))
+	line := strings.TrimSpace(buf.String())
+	var rec map[string]any
+	if err := json.Unmarshal([]byte(line), &rec); err != nil {
+		t.Fatalf("unmarshal %q: %v", line, err)
+	}
+	u, _ := rec["user"].(map[string]any)
+	if u["ssn"] != "[REDACTED]" {
+		t.Errorf("WithRedactor did not redact: %v", u["ssn"])
+	}
+}
