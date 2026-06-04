@@ -2,6 +2,7 @@
 *.exe
 *.out
 /dist/
+/build/
 # Scripts (ephemeral per project policy)
 .scripts/
 # Coverage
