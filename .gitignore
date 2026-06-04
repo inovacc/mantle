@@ -12,3 +12,4 @@ coverage*.html
 .remember/
 # Windows reserved-device-name phantom (from tooling redirects to `nul`)
 nul
+CLAUDE.md
