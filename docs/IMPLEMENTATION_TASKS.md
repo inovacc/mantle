@@ -1,6 +1,6 @@
 # Mantle — Implementation Tasks
 
-> Brand: **Mantle** (github.com/inovacc/logger — module-path rename to `.../mantle` pending).
+> Brand: **Mantle** (github.com/inovacc/mantle — module-path rename to `.../mantle` pending).
 > Go 1.25 | License BSD-3-Clause | Maintainer: Dyam Marcano <dyam.marcano@gmail.com>.
 > Part of the inovacc fleet (config, daemon, logger=Mantle).
 
@@ -163,7 +163,7 @@ Close the quality gaps that block a tagged v0.2.0 release.
 - **Effort:** M
 
 ### Task 3.2 — Module rename to `mantle`
-- **What:** Rename the module path `github.com/inovacc/logger` →
+- **What:** Rename the module path `github.com/inovacc/mantle` →
   `github.com/inovacc/mantle` and update all internal import paths. This is the
   pending invasive change flagged in the brief; per the fleet's breaking-change
   policy, land it as a dedicated commit (not mixed with features) and update every

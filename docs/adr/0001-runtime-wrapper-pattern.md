@@ -3,7 +3,7 @@
 - **Status:** Accepted
 - **Date:** 2026-06-04
 - **Maintainer:** Dyam Marcano <dyam.marcano@gmail.com>
-- **Scope:** Mantle (github.com/inovacc/logger), milestone v0.1.0 "Foundation"
+- **Scope:** Mantle (github.com/inovacc/mantle), milestone v0.1.0 "Foundation"
 
 ## Context
 
@@ -110,7 +110,7 @@ cobra → wrapper → core path end to end.
 
 ## Follow-ups
 
-- The Go module path is still `github.com/inovacc/logger`; the rename to
+- The Go module path is still `github.com/inovacc/mantle`; the rename to
   `github.com/inovacc/mantle` is a pending follow-up (the Mantle brand is being
   adopted in docs first).
 - Milestone v0.2.0 "Daemon" will wire `Features.Daemon` / `--daemon` into

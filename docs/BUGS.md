@@ -1,6 +1,6 @@
 # Mantle — Bug Tracker
 
-Bug tracker for **Mantle** (`github.com/inovacc/logger`). Track confirmed defects here. Open a row when a bug is reproduced; move it to a closed state once a fix lands and reference the release in **Fixed-in**.
+Bug tracker for **Mantle** (`github.com/inovacc/mantle`). Track confirmed defects here. Open a row when a bug is reproduced; move it to a closed state once a fix lands and reference the release in **Fixed-in**.
 
 No bugs are currently open. All packages (`pkg/logger`, `pkg/obsv`, `pkg/bootstrap`, `cmd/logger`) build cleanly, pass `go vet ./...`, and pass `go test ./... -race`.
 

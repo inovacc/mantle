@@ -3,7 +3,7 @@
 - **Date:** 2026-06-04
 - **Status:** Approved (design); pending spec review
 - **Parent:** `2026-06-04-logger-runtime-architecture-design.md`
-- **Package:** `github.com/inovacc/logger/pkg/obsv`
+- **Package:** `github.com/inovacc/mantle/pkg/obsv`
 - **Depends on:** `pkg/logger` (only for the integration test via `logger.WithSink`)
 
 ## 1. Goal

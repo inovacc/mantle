@@ -4,7 +4,7 @@
 - Date: 2026-06-04
 - Maintainer: Dyam Marcano <dyam.marcano@gmail.com>
 - Milestone: v0.1.0 "Foundation"
-- Project: Mantle (github.com/inovacc/logger)
+- Project: Mantle (github.com/inovacc/mantle)
 
 ## Context
 

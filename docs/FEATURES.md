@@ -1,8 +1,8 @@
 # Mantle — Features
 
-**Mantle** (`github.com/inovacc/logger`) is a batteries-included Go application runtime that wraps any binary — from its Cobra CLI down to its core logic — with PII-redacting structured logging, full OpenTelemetry observability, and feature-flagged unified config. The runtime flow is **cobra (entry) → bootstrap (wrapper/runtime) → core app**.
+**Mantle** (`github.com/inovacc/mantle`) is a batteries-included Go application runtime that wraps any binary — from its Cobra CLI down to its core logic — with PII-redacting structured logging, full OpenTelemetry observability, and feature-flagged unified config. The runtime flow is **cobra (entry) → bootstrap (wrapper/runtime) → core app**.
 
-> Note: the module-path rename to `github.com/inovacc/mantle` is a pending follow-up. The brand "Mantle" is adopted in docs first; the import path is still `github.com/inovacc/logger`.
+> Note: the module-path rename to `github.com/inovacc/mantle` is a pending follow-up. The brand "Mantle" is adopted in docs first; the import path is still `github.com/inovacc/mantle`.
 
 Status legend: **Completed** = shipped in milestone v0.1.0 "Foundation" · **Proposed** = planned / backlog.
 

@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Refactor the seed `piilog` package into a pure, importable `github.com/inovacc/logger/pkg/logger` — slog + tag-driven PII redaction + trace correlation + `Safe()` — with OTel export removed (it moves to `pkg/obsv`) and a `WithSink` seam for it to plug back in.
+**Goal:** Refactor the seed `piilog` package into a pure, importable `github.com/inovacc/mantle/pkg/logger` — slog + tag-driven PII redaction + trace correlation + `Safe()` — with OTel export removed (it moves to `pkg/obsv`) and a `WithSink` seam for it to plug back in.
 
 **Architecture:** Handler chain `redactHandler → traceHandler → fanoutHandler → [JSON/Text sink, …extra sinks]`. Redaction is outermost so no sink ever sees raw PII. The redaction engine is a single recursive walker returning `slog.Value` (struct→`GroupValue`; slice/map→`AnyValue` of `[]any`/`map[string]any` built by converting child values), backed by one per-type cache holding both type-scan flags and the field plan.
 
@@ -13,7 +13,7 @@
 ## File Structure
 
 ```
-go.mod                       module github.com/inovacc/logger, go 1.25
+go.mod                       module github.com/inovacc/mantle, go 1.25
 LICENSE                      BSD-3-Clause (holder: dyammarcano, 2026)
 .gitignore                   Go + .scripts/ + coverage artifacts
 pkg/logger/
@@ -54,7 +54,7 @@ Expected: `Initialized empty Git repository`; the six root `.go` files are gone 
 
 `go.mod`:
 ```
-module github.com/inovacc/logger
+module github.com/inovacc/mantle
 
 go 1.25
 
@@ -123,7 +123,7 @@ coverage*.html
 //
 //   - A configured *slog.Logger writing JSON or text to a local sink, with extra
 //     fan-out sinks pluggable via WithSink (e.g. an OpenTelemetry bridge from
-//     github.com/inovacc/logger/pkg/obsv).
+//     github.com/inovacc/mantle/pkg/obsv).
 //   - Automatic correlation of every record with the active trace
 //     (trace_id / span_id) when the context carries a valid span.
 //   - PII redaction driven by struct tags. Tag a field with `pii:"..."` and the
@@ -1576,20 +1576,20 @@ Expected: each `Benchmark*` prints a line; no failures.
 ```markdown
 # logger
 
-`github.com/inovacc/logger` — structured logging on `log/slog` with tag-driven
+`github.com/inovacc/mantle` — structured logging on `log/slog` with tag-driven
 PII redaction and OpenTelemetry trace correlation. Part of the inovacc fleet
 (`config`, `daemon`, `logger`).
 
 ## Install
 
 ```bash
-go get github.com/inovacc/logger/pkg/logger
+go get github.com/inovacc/mantle/pkg/logger
 ```
 
 ## Quick start
 
 ```go
-import "github.com/inovacc/logger/pkg/logger"
+import "github.com/inovacc/mantle/pkg/logger"
 
 lg, err := logger.New(logger.Config{
     ServiceName: "checkout-api",

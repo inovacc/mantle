@@ -1,10 +1,10 @@
 # Mantle — Known Limitations
 
-These are documented, by-design limitations of **Mantle (github.com/inovacc/logger)** as of
+These are documented, by-design limitations of **Mantle (github.com/inovacc/mantle)** as of
 milestone **v0.1.0 "Foundation"**. Each entry is a **Limitation**, not a bug: the behavior is
 intentional and understood. Where a workaround exists, it is noted inline.
 
-> Scope note: Mantle is the brand. The Go module path is still `github.com/inovacc/logger`;
+> Scope note: Mantle is the brand. The Go module path is still `github.com/inovacc/mantle`;
 > a rename to `github.com/inovacc/mantle` is a pending follow-up (see L9).
 
 ---
@@ -121,10 +121,10 @@ implicit write into the cwd.
 
 **Type:** Limitation (planned follow-up)
 
-The brand is **Mantle**, but the Go module / import path is still `github.com/inovacc/logger`.
+The brand is **Mantle**, but the Go module / import path is still `github.com/inovacc/mantle`.
 The rename to `github.com/inovacc/mantle` has not yet landed; the brand is adopted in docs first.
 
-**Workaround:** Import using the current path `github.com/inovacc/logger`. Track the rename as a
+**Workaround:** Import using the current path `github.com/inovacc/mantle`. Track the rename as a
 pending follow-up before depending on the `mantle` path.
 
 ---
@@ -141,4 +141,4 @@ pending follow-up before depending on the `mantle` path.
 | L6 | `inovacc/config` global singleton | Isolated behind `ConfigSource` for tests |
 | L7 | yaml/yml/json only; `default:` tags ignored | Defaults via `DefaultBase` |
 | L8 | `cmd/logger` auto-creates `config.yaml` in cwd | Pass `--config` |
-| L9 | Module rename to `mantle` pending | Import `github.com/inovacc/logger` for now |
+| L9 | Module rename to `mantle` pending | Import `github.com/inovacc/mantle` for now |

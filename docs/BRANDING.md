@@ -1,10 +1,10 @@
 # logger — Branding Names
 
-> Branding **proposals** for `github.com/inovacc/logger`. Nothing here renames the module yet — it's a reference for choosing an identity. Part of the **inovacc** fleet (`config`, `daemon`, `logger`).
+> Branding reference for `github.com/inovacc/mantle`. The module-path rename from `github.com/inovacc/logger` to `github.com/inovacc/mantle` is done. Part of the **inovacc** fleet (`config`, `daemon`, `mantle`).
 
 ## Project Identity
 
-- **Current name:** `logger` (`github.com/inovacc/logger`)
+- **Current name:** `mantle` (`github.com/inovacc/mantle`)
 - **Core purpose (one sentence):** A batteries-included Go application runtime that wraps any binary — from its Cobra CLI to its core logic — with PII-redacting structured logging, full OpenTelemetry observability, and feature-flagged unified config.
 - **Key features:** tag-driven PII redaction (`redact`/`mask`/`hash`/`omit`) · `Safe()` deferred redaction · trace-ID correlation · full OTel bootstrap (logs + traces + metrics over OTLP, runtime metrics) · config-driven feature flags · `cobra → wrapper → core-app` runtime · always-present CLI flags · composite (embeddable) config.
 - **Target audience:** Go backend developers and platform / ops engineers shipping production services.

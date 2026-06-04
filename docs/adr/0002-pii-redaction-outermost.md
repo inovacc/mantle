@@ -2,7 +2,7 @@
 
 - Status: Accepted
 - Date: 2026-06-04
-- Project: Mantle (github.com/inovacc/logger)
+- Project: Mantle (github.com/inovacc/mantle)
 - Maintainer: Dyam Marcano <dyam.marcano@gmail.com>
 
 ## Context

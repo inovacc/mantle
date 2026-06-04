@@ -1,6 +1,6 @@
 # Mantle — Backlog
 
-Future work and technical debt for **Mantle** (`github.com/inovacc/logger`), the batteries-included Go application runtime that wraps any binary with PII-redacting structured logging, full OpenTelemetry observability, and feature-flagged unified config.
+Future work and technical debt for **Mantle** (`github.com/inovacc/mantle`), the batteries-included Go application runtime that wraps any binary with PII-redacting structured logging, full OpenTelemetry observability, and feature-flagged unified config.
 
 Flow: cobra (entry) → bootstrap (wrapper/runtime) → core app.
 
@@ -35,7 +35,7 @@ Emit structured `log/slog` events for the daemon lifecycle: startup, restart (wi
 ### Wire Features.Daemon / --daemon into bootstrap — **M**
 Add a `Daemon` feature flag and a `--daemon` always-present persistent flag to `pkg/bootstrap`, evaluated alongside the existing `Features{Logging, Observability}` and overlaid like the other CHANGED-flag overrides. Activates daemon mode in the runtime. Depends on the P1 daemon gaps and the lifecycle hooks above.
 
-### Module-path rename github.com/inovacc/logger → .../mantle — **M**
+### Module-path rename github.com/inovacc/mantle → .../mantle — **M**
 Mechanical rename of the Go module/import path to match the adopted brand. No external consumers yet, so this is low-risk but touches every import site, `go.mod` files, and docs. The brand "Mantle" is already adopted in docs ahead of the rename.
 
 ### Regex/content-based PII detection — **M**

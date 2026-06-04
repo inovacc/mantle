@@ -1,6 +1,6 @@
 # Sub-project C6 — Bootstrap Daemon Wiring
 
-> Part of sub-project C. Target module: **github.com/inovacc/logger** (`pkg/bootstrap` + `cmd/logger`). Depends on the daemon module (local, via replace) at `../daemon` (lifecycle logging already landed in C1).
+> Part of sub-project C. Target module: **github.com/inovacc/mantle** (`pkg/bootstrap` + `cmd/logger`). Depends on the daemon module (local, via replace) at `../daemon` (lifecycle logging already landed in C1).
 
 **Goal:** make daemon mode work end-to-end through Mantle: `Features.Daemon`/`--daemon` runs the core app under the daemon supervisor (monitor+worker), with daemon lifecycle logs flowing through Mantle's redacting logger (via `slog.Default()`). Add `bootstrap.Serve` — a daemon-aware entry point. Non-spawning paths are unit-tested.
 

@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-Mantle (`github.com/inovacc/logger`) is part of the inovacc fleet (config, daemon,
+Mantle (`github.com/inovacc/mantle`) is part of the inovacc fleet (config, daemon,
 logger=Mantle). The `pkg/bootstrap` runtime needs to load application configuration
 from defaults, a file, and the environment, then expose it as a composite
 `bootstrap.Base` that any consuming app can squash-embed.

@@ -3,7 +3,7 @@
 - **Date:** 2026-06-04
 - **Status:** Approved (design); pending user spec review
 - **Parent:** `2026-06-04-logger-runtime-architecture-design.md`
-- **Package:** `github.com/inovacc/logger/pkg/logger`
+- **Package:** `github.com/inovacc/mantle/pkg/logger`
 - **Nature:** **In-place refactor** of the seed already present in `D:\weaver-sync\modules\logger`
   (`logger.go`, `handler.go`, `redact.go`, `otel.go`, `redact_test.go`, `main.go`).
 
@@ -147,7 +147,7 @@ pkg/logger/
   redact.go      Redactor, structPlan, strategies, unified walker, caches
   safe.go        Safe, safeValue, SetHashSalt, package redactor
   logger_test.go handler_test.go redact_test.go bench_test.go
-go.mod           module github.com/inovacc/logger, go 1.25
+go.mod           module github.com/inovacc/mantle, go 1.25
 LICENSE          BSD-3-Clause
 ```
 

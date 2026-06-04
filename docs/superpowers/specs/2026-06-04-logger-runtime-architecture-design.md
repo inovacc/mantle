@@ -2,7 +2,7 @@
 
 - **Date:** 2026-06-04
 - **Status:** Approved (shape + sub-project A detail)
-- **Module:** `github.com/inovacc/logger` (go 1.25, BSD-3-Clause)
+- **Module:** `github.com/inovacc/mantle` (go 1.25, BSD-3-Clause)
 - **Related modules:** `github.com/inovacc/config`, `github.com/inovacc/daemon`
 
 ## 1. Problem & Goal
@@ -88,7 +88,7 @@ The wrapper integrates with the published viper config **behind a thin internal
 └────────────────────────────────────────────────────────────────┘
 ```
 
-### 3.1 Package layout (`github.com/inovacc/logger`)
+### 3.1 Package layout (`github.com/inovacc/mantle`)
 
 ```
 cmd/logger/            reference binary proving cobra → wrapper → core app
@@ -266,4 +266,4 @@ specified** in `2026-06-04-pkg-logger-design.md`. B and C get their specs when r
 
 - This directory is **not** a git repo; specs are written to disk but not committed.
 - The seed (`piilog`, go 1.22) is already present in this dir and is refactored in place
-  under the `github.com/inovacc/logger` path.
+  under the `github.com/inovacc/mantle` path.

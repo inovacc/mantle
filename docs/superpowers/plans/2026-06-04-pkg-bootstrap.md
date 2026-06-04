@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development. Steps use checkbox (`- [ ]`) syntax.
 
-**Goal:** Build `github.com/inovacc/logger/pkg/bootstrap` — the `cobra → wrapper → core-app` runtime: load unified config (defaults→file→env), overlay always-present CLI flags, gate logging+observability behind feature flags, hand the core app a `Runtime` — plus a `cmd/logger` reference binary.
+**Goal:** Build `github.com/inovacc/mantle/pkg/bootstrap` — the `cobra → wrapper → core-app` runtime: load unified config (defaults→file→env), overlay always-present CLI flags, gate logging+observability behind feature flags, hand the core app a `Runtime` — plus a `cmd/logger` reference binary.
 
 **Architecture:** `Configure[T Configurable](root, app)` registers persistent flags and a `PersistentPreRunE` that loads config via a `ConfigSource` (viper-backed `inovacc/config` by default, injectable fake for tests), overlays changed flags onto the squash-embedded `Base`, builds a `Runtime` (obsv first so its `LogSink` attaches to the logger), and stores it in `cmd.Context()`. Leaf `RunE` calls `bootstrap.Run`/`FromContext`.
 
@@ -70,7 +70,7 @@ package bootstrap
 import (
 	"testing"
 
-	"github.com/inovacc/logger/pkg/logger"
+	"github.com/inovacc/mantle/pkg/logger"
 )
 
 // testApp is the in-package fixture: a user app squash-embedding Base.
@@ -115,8 +115,8 @@ package bootstrap
 import (
 	"time"
 
-	"github.com/inovacc/logger/pkg/logger"
-	"github.com/inovacc/logger/pkg/obsv"
+	"github.com/inovacc/mantle/pkg/logger"
+	"github.com/inovacc/mantle/pkg/obsv"
 )
 
 // Features gates optional subsystems.
@@ -319,7 +319,7 @@ import (
 	"io"
 	"testing"
 
-	"github.com/inovacc/logger/pkg/obsv"
+	"github.com/inovacc/mantle/pkg/obsv"
 	"github.com/spf13/cobra"
 )
 
@@ -466,7 +466,7 @@ func TestViperSourceLoadsYAML(t *testing.T) {
 package bootstrap
 
 import (
-	"github.com/inovacc/logger/pkg/logger"
+	"github.com/inovacc/mantle/pkg/logger"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -529,8 +529,8 @@ import (
 	"io"
 	"log/slog"
 
-	"github.com/inovacc/logger/pkg/logger"
-	"github.com/inovacc/logger/pkg/obsv"
+	"github.com/inovacc/mantle/pkg/logger"
+	"github.com/inovacc/mantle/pkg/obsv"
 	"github.com/spf13/cobra"
 	"go.opentelemetry.io/otel/metric"
 	metricnoop "go.opentelemetry.io/otel/metric/noop"
@@ -722,7 +722,7 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/inovacc/logger/pkg/bootstrap"
+	"github.com/inovacc/mantle/pkg/bootstrap"
 	"github.com/spf13/cobra"
 )
 

@@ -1,6 +1,6 @@
 # Mantle — Roadmap
 
-Mantle (github.com/inovacc/logger) is a batteries-included Go application runtime
+Mantle (github.com/inovacc/mantle) is a batteries-included Go application runtime
 that wraps any binary — from its Cobra CLI to its core logic — with PII-redacting
 structured logging, full OpenTelemetry observability, and feature-flagged unified
 config. Flow: cobra (entry) → bootstrap (wrapper/runtime) → core app.
@@ -8,7 +8,7 @@ config. Flow: cobra (entry) → bootstrap (wrapper/runtime) → core app.
 **Overall progress: ~75%** — milestone v0.1.0 "Foundation" complete; v0.2.0
 "Daemon" in progress.
 
-> Note: the Go module path is still `github.com/inovacc/logger`. The "Mantle" brand
+> Note: the Go module path is still `github.com/inovacc/mantle`. The "Mantle" brand
 > is adopted in docs first; the module-path rename to
 > `github.com/inovacc/mantle` is a pending follow-up (tracked in Phase 5).
 
@@ -104,7 +104,7 @@ Sub-project C — milestone v0.2.0 "Daemon". Build out the sibling
 Milestone hardening before a tagged release.
 
 - Tests for `cmd/logger` (currently 0%).
-- Module-path rename `github.com/inovacc/logger` → `github.com/inovacc/mantle`.
+- Module-path rename `github.com/inovacc/mantle` → `github.com/inovacc/mantle`.
 - Regex / content-based PII detection (today: struct-tag only).
 - Config zero-dep adapter (decouple from the inovacc/config process-global
   singleton; add formats beyond yaml/yml/json).

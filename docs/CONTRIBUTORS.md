@@ -1,6 +1,6 @@
 # Contributing to Mantle
 
-Mantle (`github.com/inovacc/logger`) is a batteries-included Go application
+Mantle (`github.com/inovacc/mantle`) is a batteries-included Go application
 runtime that wraps any binary — from its Cobra CLI to its core logic — with
 PII-redacting structured logging, full OpenTelemetry observability, and
 feature-flagged unified config. It is part of the inovacc fleet (config,
@@ -11,7 +11,7 @@ daemon, logger=Mantle).
 - **License:** BSD-3-Clause
 - **Repository:** greenfield on `master`, no git remote and no external CI yet.
 
-> Note: the module path is still `github.com/inovacc/logger`. A rename to
+> Note: the module path is still `github.com/inovacc/mantle`. A rename to
 > `github.com/inovacc/mantle` is a pending follow-up; the **Mantle** brand is
 > adopted in docs first.
 

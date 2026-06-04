@@ -1,7 +1,7 @@
 # Mantle
 
-> **Mantle** is the brand name; the Go import path is currently
-> `github.com/inovacc/logger` (a module-path rename to `.../mantle` is planned).
+> **Mantle** is the brand name; the Go import path is
+> `github.com/inovacc/mantle` (the module-path rename from `.../logger` is done).
 
 A batteries-included Go application runtime that wraps any binary — from its
 Cobra CLI down to its core logic — with **PII-redacting structured logging**,
@@ -16,13 +16,13 @@ flow is `cobra → Mantle (wrapper) → your core app`. Part of the inovacc flee
 ## Install
 
 ```bash
-go get github.com/inovacc/logger/pkg/logger
+go get github.com/inovacc/mantle/pkg/logger
 ```
 
 ## Quick start
 
 ```go
-import "github.com/inovacc/logger/pkg/logger"
+import "github.com/inovacc/mantle/pkg/logger"
 
 lg, err := logger.New(logger.Config{
     ServiceName: "checkout-api",
@@ -71,8 +71,8 @@ into the logger:
 
 ```go
 import (
-    "github.com/inovacc/logger/pkg/logger"
-    "github.com/inovacc/logger/pkg/obsv"
+    "github.com/inovacc/mantle/pkg/logger"
+    "github.com/inovacc/mantle/pkg/obsv"
 )
 
 stack, _ := obsv.New(ctx, obsv.Config{Enabled: true, Endpoint: "localhost:4317", Insecure: true},
