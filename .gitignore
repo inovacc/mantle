@@ -1,0 +1,11 @@
+# Binaries / build
+*.exe
+*.out
+/dist/
+# Scripts (ephemeral per project policy)
+.scripts/
+# Coverage
+coverage*.out
+coverage*.html
+# Local memory
+.remember/
