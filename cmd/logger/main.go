@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/inovacc/mantle/pkg/bootstrap"
+	"github.com/inovacc/mantle/bootstrap"
 	"github.com/spf13/cobra"
 )
 

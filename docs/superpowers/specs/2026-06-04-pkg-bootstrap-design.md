@@ -3,7 +3,7 @@
 - **Date:** 2026-06-04
 - **Status:** Approved (design); pending spec review
 - **Parent:** `2026-06-04-logger-runtime-architecture-design.md`
-- **Package:** `github.com/inovacc/mantle/pkg/bootstrap` + `cmd/logger`
+- **Package:** `github.com/inovacc/mantle/bootstrap` + `cmd/logger`
 - **Depends on:** `pkg/logger`, `pkg/obsv`, `github.com/inovacc/config` v1.2.2, `github.com/spf13/cobra`
 
 ## 1. Goal

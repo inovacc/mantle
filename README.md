@@ -9,20 +9,20 @@ Cobra CLI down to its core logic — with **PII-redacting structured logging**,
 flow is `cobra → Mantle (wrapper) → your core app`. Part of the inovacc fleet
 (`config`, `daemon`, `logger`/Mantle).
 
-**Packages:** `pkg/logger` (slog + PII redaction + trace correlation) ·
-`pkg/obsv` (full OTel: logs + traces + metrics) · `pkg/bootstrap` (the
+**Packages:** `logger` (slog + PII redaction + trace correlation) ·
+`obsv` (full OTel: logs + traces + metrics) · `bootstrap` (the
 `cobra→wrapper→core` runtime) · `cmd/logger` (reference binary).
 
 ## Install
 
 ```bash
-go get github.com/inovacc/mantle/pkg/logger
+go get github.com/inovacc/mantle/logger
 ```
 
 ## Quick start
 
 ```go
-import "github.com/inovacc/mantle/pkg/logger"
+import "github.com/inovacc/mantle/logger"
 
 lg, err := logger.New(logger.Config{
     ServiceName: "checkout-api",
@@ -56,23 +56,23 @@ lg.Info("signup", slog.Any("user", logger.Safe(u)))
 
 ## Observability
 
-`pkg/logger` depends only on the stdlib and the OTel **trace API** (for
+`logger` depends only on the stdlib and the OTel **trace API** (for
 `trace_id`/`span_id` correlation). Full OpenTelemetry export (logs, traces,
-metrics) is provided by `pkg/obsv`, which attaches via:
+metrics) is provided by `obsv`, which attaches via:
 
 ```go
 lg, _ := logger.New(cfg, logger.WithSink(otelBridgeHandler))
 ```
 
-### Full OpenTelemetry (pkg/obsv)
+### Full OpenTelemetry (obsv)
 
-`pkg/obsv` bootstraps logs + traces + metrics in one call and bridges logs back
+`obsv` bootstraps logs + traces + metrics in one call and bridges logs back
 into the logger:
 
 ```go
 import (
-    "github.com/inovacc/mantle/pkg/logger"
-    "github.com/inovacc/mantle/pkg/obsv"
+    "github.com/inovacc/mantle/logger"
+    "github.com/inovacc/mantle/obsv"
 )
 
 stack, _ := obsv.New(ctx, obsv.Config{Enabled: true, Endpoint: "localhost:4317", Insecure: true},
@@ -89,7 +89,7 @@ defer span.End()
 Disabled (`Enabled:false`) yields a no-op stack — `LogSink()` is nil (logger skips
 it), `Tracer`/`Meter` are no-ops, `Shutdown` does nothing.
 
-## Application runtime (pkg/bootstrap)
+## Application runtime (bootstrap)
 
 Wire one wrapper from your Cobra CLI to your core app — config, logging, and
 observability included:

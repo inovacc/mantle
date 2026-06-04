@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Refactor the seed `piilog` package into a pure, importable `github.com/inovacc/mantle/pkg/logger` — slog + tag-driven PII redaction + trace correlation + `Safe()` — with OTel export removed (it moves to `pkg/obsv`) and a `WithSink` seam for it to plug back in.
+**Goal:** Refactor the seed `piilog` package into a pure, importable `github.com/inovacc/mantle/logger` — slog + tag-driven PII redaction + trace correlation + `Safe()` — with OTel export removed (it moves to `pkg/obsv`) and a `WithSink` seam for it to plug back in.
 
 **Architecture:** Handler chain `redactHandler → traceHandler → fanoutHandler → [JSON/Text sink, …extra sinks]`. Redaction is outermost so no sink ever sees raw PII. The redaction engine is a single recursive walker returning `slog.Value` (struct→`GroupValue`; slice/map→`AnyValue` of `[]any`/`map[string]any` built by converting child values), backed by one per-type cache holding both type-scan flags and the field plan.
 
@@ -123,7 +123,7 @@ coverage*.html
 //
 //   - A configured *slog.Logger writing JSON or text to a local sink, with extra
 //     fan-out sinks pluggable via WithSink (e.g. an OpenTelemetry bridge from
-//     github.com/inovacc/mantle/pkg/obsv).
+//     github.com/inovacc/mantle/obsv).
 //   - Automatic correlation of every record with the active trace
 //     (trace_id / span_id) when the context carries a valid span.
 //   - PII redaction driven by struct tags. Tag a field with `pii:"..."` and the
@@ -1583,13 +1583,13 @@ PII redaction and OpenTelemetry trace correlation. Part of the inovacc fleet
 ## Install
 
 ```bash
-go get github.com/inovacc/mantle/pkg/logger
+go get github.com/inovacc/mantle/logger
 ```
 
 ## Quick start
 
 ```go
-import "github.com/inovacc/mantle/pkg/logger"
+import "github.com/inovacc/mantle/logger"
 
 lg, err := logger.New(logger.Config{
     ServiceName: "checkout-api",

@@ -1,7 +1,7 @@
 package bootstrap
 
 import (
-	"github.com/inovacc/mantle/pkg/logger"
+	"github.com/inovacc/mantle/logger"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
