@@ -148,7 +148,7 @@ func TestWithSinkFansOut(t *testing.T) {
 }
 
 func TestConfigTags(t *testing.T) {
-	rt := reflect.TypeOf(Config{})
+	rt := reflect.TypeFor[Config]()
 	want := map[string][2]string{ // field -> {mapstructure, default}
 		"Level":  {"level", "info"},
 		"Format": {"format", "json"},
