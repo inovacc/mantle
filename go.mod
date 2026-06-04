@@ -5,6 +5,7 @@ go 1.25
 require (
 	github.com/inovacc/config v1.2.2
 	github.com/spf13/cobra v1.8.1
+	github.com/spf13/pflag v1.0.7
 	go.opentelemetry.io/contrib/bridges/otelslog v0.7.0
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.57.0
 	go.opentelemetry.io/otel v1.32.0
@@ -39,7 +40,6 @@ require (
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.14.0 // indirect
 	github.com/spf13/cast v1.9.2 // indirect
-	github.com/spf13/pflag v1.0.7 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.32.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.3.1 // indirect
