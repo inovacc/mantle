@@ -10,3 +10,5 @@ coverage*.out
 coverage*.html
 # Local memory
 .remember/
+# Windows reserved-device-name phantom (from tooling redirects to `nul`)
+nul
