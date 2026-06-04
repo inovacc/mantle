@@ -1,8 +1,17 @@
-# logger
+# Mantle
 
-`github.com/inovacc/logger` — structured logging on `log/slog` with tag-driven
-PII redaction and OpenTelemetry trace correlation. Part of the inovacc fleet
-(`config`, `daemon`, `logger`).
+> **Mantle** is the brand name; the Go import path is currently
+> `github.com/inovacc/logger` (a module-path rename to `.../mantle` is planned).
+
+A batteries-included Go application runtime that wraps any binary — from its
+Cobra CLI down to its core logic — with **PII-redacting structured logging**,
+**full OpenTelemetry observability**, and **feature-flagged unified config**. The
+flow is `cobra → Mantle (wrapper) → your core app`. Part of the inovacc fleet
+(`config`, `daemon`, `logger`/Mantle).
+
+**Packages:** `pkg/logger` (slog + PII redaction + trace correlation) ·
+`pkg/obsv` (full OTel: logs + traces + metrics) · `pkg/bootstrap` (the
+`cobra→wrapper→core` runtime) · `cmd/logger` (reference binary).
 
 ## Install
 
@@ -106,6 +115,15 @@ Always-present flags (highest precedence over file+env): `-c/--config`, `--env`,
 `--log-level`, `-v/-q`, `--log-format`, `--log-source`, `--no-redact`, `--otel`,
 `--otel-endpoint`, `--otel-protocol`, `--version`. Enable subsystems via the
 `features:` config block or flags.
+
+## Documentation
+
+See [`docs/`](docs/): [ARCHITECTURE](docs/ARCHITECTURE.md) ·
+[ROADMAP](docs/ROADMAP.md) · [MILESTONES](docs/MILESTONES.md) ·
+[BACKLOG](docs/BACKLOG.md) · [FEATURES](docs/FEATURES.md) ·
+[ISSUES](docs/ISSUES.md) · [CLI verbs](docs/VERBS.md) ·
+[ADRs](docs/adr/) · [BRANDING](docs/BRANDING.md) ·
+[CONTRIBUTORS](docs/CONTRIBUTORS.md).
 
 ## License
 
