@@ -18,7 +18,7 @@ const (
 	defaultMaxDepth = 8
 )
 
-var timeType = reflect.TypeOf(time.Time{})
+var timeType = reflect.TypeFor[time.Time]()
 
 type strategy int
 
@@ -111,7 +111,7 @@ func scanType(t reflect.Type, seen map[reflect.Type]bool) (hasPII, hasIface bool
 		if t == timeType {
 			return false, false
 		}
-		for i := 0; i < t.NumField(); i++ {
+		for i := range t.NumField() {
 			f := t.Field(i)
 			if f.PkgPath != "" {
 				continue
@@ -130,7 +130,7 @@ func scanType(t reflect.Type, seen map[reflect.Type]bool) (hasPII, hasIface bool
 
 func buildPlan(t reflect.Type) *structPlan {
 	fields := make([]fieldPlan, 0, t.NumField())
-	for i := 0; i < t.NumField(); i++ {
+	for i := range t.NumField() {
 		f := t.Field(i)
 		if f.PkgPath != "" {
 			continue
@@ -222,7 +222,7 @@ func (r *Redactor) list(v reflect.Value, depth int) []any {
 	}
 	n := v.Len()
 	out := make([]any, n)
-	for i := 0; i < n; i++ {
+	for i := range n {
 		out[i] = valueToAny(r.Value(v.Index(i), depth+1))
 	}
 	return out
@@ -233,12 +233,15 @@ func (r *Redactor) mapp(v reflect.Value, depth int) map[string]any {
 		return nil
 	}
 	out := make(map[string]any, v.Len())
+	// note: keys are rendered with %v; string-renderable keys are the intended case. Distinct keys that render identically would collide.
 	it := v.MapRange()
 	for it.Next() {
 		out[fmt.Sprintf("%v", it.Key().Interface())] = valueToAny(r.Value(it.Value(), depth+1))
 	}
 	return out
 }
+
+// known gap: a slog.LogValuer stored inside a container (slice/map/any field) is not resolved or redacted here; only top-level LogValuers are resolved by slog. Wrap nested values with Safe explicitly if needed.
 
 // valueToAny converts a (possibly group) slog.Value into a plain Go value so it
 // can live inside []any / map[string]any container representations.
@@ -269,11 +272,13 @@ func (r *Redactor) strategyString(fp *fieldPlan, v reflect.Value) string {
 	}
 }
 
+// hash returns a salted SHA-256 fingerprint truncated to 64 bits: a stable correlation token, not a cryptographic commitment. Low-entropy inputs remain brute-forceable.
 func (r *Redactor) hash(s string) string {
 	sum := sha256.Sum256([]byte(r.salt + s))
 	return "sha256:" + hex.EncodeToString(sum[:])[:16]
 }
 
+// mask reveals the last keep runes and stars the rest. Note: the number of stars reveals the original length.
 func mask(s string, keep int) string {
 	runes := []rune(s)
 	n := len(runes)

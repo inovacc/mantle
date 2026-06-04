@@ -172,3 +172,53 @@ func TestSafeRedactsViaLogValue(t *testing.T) {
 		t.Errorf("Safe did not redact ssn: %v", m["ssn"])
 	}
 }
+
+func TestRedactorMapOfPII(t *testing.T) {
+	m := map[string]user{"a": sampleUser()}
+	v := NewRedactor("s").Value(reflect.ValueOf(m), 0)
+	out, ok := v.Any().(map[string]any)
+	if !ok {
+		t.Fatalf("expected map, got %T", v.Any())
+	}
+	inner, ok := out["a"].(map[string]any)
+	if !ok {
+		t.Fatalf("expected inner map, got %T", out["a"])
+	}
+	if inner["ssn"] != "[REDACTED]" {
+		t.Errorf("map value PII not redacted: %v", inner["ssn"])
+	}
+}
+
+func TestRedactorPointerField(t *testing.T) {
+	type box struct {
+		Addr *address `json:"addr"`
+	}
+	v := NewRedactor("s").Value(reflect.ValueOf(box{Addr: &address{Street: "x", City: "c", Zip: "12345"}}), 0)
+	m := valueToAny(v).(map[string]any)
+	addr, ok := m["addr"].(map[string]any)
+	if !ok {
+		t.Fatalf("expected addr map, got %T", m["addr"])
+	}
+	if addr["street"] != "[REDACTED]" {
+		t.Errorf("pointer field PII not redacted: %v", addr["street"])
+	}
+	v2 := NewRedactor("s").Value(reflect.ValueOf(box{Addr: nil}), 0)
+	m2 := valueToAny(v2).(map[string]any)
+	if m2["addr"] != nil {
+		t.Errorf("nil pointer field should be nil, got %v", m2["addr"])
+	}
+}
+
+func TestMaskHashNonStringField(t *testing.T) {
+	type acct struct {
+		PIN  int `json:"pin" pii:"mask,2"`
+		Card int `json:"card" pii:"hash"`
+	}
+	m := valueToAny(NewRedactor("s").Value(reflect.ValueOf(acct{PIN: 123456, Card: 99}), 0)).(map[string]any)
+	if pin, _ := m["pin"].(string); !strings.HasSuffix(pin, "56") || !strings.HasPrefix(pin, "*") {
+		t.Errorf("int mask unexpected: %v", pin)
+	}
+	if card, _ := m["card"].(string); !strings.HasPrefix(card, "sha256:") {
+		t.Errorf("int hash unexpected: %v", card)
+	}
+}
