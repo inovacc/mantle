@@ -65,11 +65,19 @@ func New(ctx context.Context, cfg Config, info ServiceInfo, opts ...Option) (*St
 		return nil, err
 	}
 	res, err := buildResource(ctx, info)
-	if err != nil {
+	if err != nil && res == nil {
+		// resource.New returns nil only on a fatal error; a non-fatal partial
+		// error (e.g. schema-URL conflict or a single detector failing) comes
+		// back with a usable res, which we keep.
 		return nil, fmt.Errorf("obsv: resource: %w", err)
 	}
 
 	st := &Stack{scope: scopeName(info)}
+	// On a partial-build failure, fail shuts down already-built providers, but a
+	// global already set via otel.SetTracerProvider/SetMeterProvider may still
+	// point at the (now shut-down) provider. That's acceptable: New returns an
+	// error, the caller must not use telemetry, and the propagator is not set on
+	// the failure path.
 	fail := func(e error) (*Stack, error) {
 		_ = st.Shutdown(context.Background())
 		return nil, e

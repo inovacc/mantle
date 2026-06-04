@@ -55,6 +55,31 @@ metrics) is provided by `pkg/obsv`, which attaches via:
 lg, _ := logger.New(cfg, logger.WithSink(otelBridgeHandler))
 ```
 
+### Full OpenTelemetry (pkg/obsv)
+
+`pkg/obsv` bootstraps logs + traces + metrics in one call and bridges logs back
+into the logger:
+
+```go
+import (
+    "github.com/inovacc/logger/pkg/logger"
+    "github.com/inovacc/logger/pkg/obsv"
+)
+
+stack, _ := obsv.New(ctx, obsv.Config{Enabled: true, Endpoint: "localhost:4317", Insecure: true},
+    obsv.ServiceInfo{Name: "checkout", Version: "1.2.0", Environment: "prod"})
+defer stack.Shutdown(ctx)
+
+lg, _ := logger.New(logger.Config{ServiceName: "checkout", Redact: true},
+    logger.WithSink(stack.LogSink()))
+
+ctx, span := stack.Tracer("checkout").Start(ctx, "PlaceOrder")
+defer span.End()
+```
+
+Disabled (`Enabled:false`) yields a no-op stack — `LogSink()` is nil (logger skips
+it), `Tracer`/`Meter` are no-ops, `Shutdown` does nothing.
+
 ## License
 
 BSD-3-Clause.
