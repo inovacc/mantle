@@ -21,10 +21,12 @@ func Serve[T Configurable](root *cobra.Command, app T, core func(context.Context
 	if err := Configure(root, app, opts...); err != nil {
 		return err
 	}
+
 	o := defaultOptions(root)
 	for _, fn := range opts {
 		fn(&o)
 	}
+
 	dopts := daemon.Options{
 		BinaryName: o.appName,
 		Version:    o.version,
@@ -35,11 +37,14 @@ func Serve[T Configurable](root *cobra.Command, app T, core func(context.Context
 	if err := daemon.AttachCommands(root, dopts); err != nil {
 		return err
 	}
+
 	root.RunE = func(cmd *cobra.Command, _ []string) error {
 		if app.base().Features.Daemon {
 			return daemon.RunMonitor(cmd.Context(), dopts)
 		}
+
 		return core(cmd.Context(), FromContext(cmd.Context()))
 	}
+
 	return nil
 }

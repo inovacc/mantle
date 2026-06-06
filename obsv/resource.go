@@ -13,12 +13,15 @@ func buildResource(ctx context.Context, info ServiceInfo) (*resource.Resource, e
 	if info.Name != "" {
 		attrs = append(attrs, semconv.ServiceName(info.Name))
 	}
+
 	if info.Version != "" {
 		attrs = append(attrs, semconv.ServiceVersion(info.Version))
 	}
+
 	if info.Environment != "" {
 		attrs = append(attrs, attribute.String("deployment.environment", info.Environment))
 	}
+
 	return resource.New(ctx,
 		resource.WithAttributes(attrs...),
 		resource.WithProcess(),

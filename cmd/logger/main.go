@@ -13,7 +13,8 @@ import (
 // App composes the wrapper's Base with the app's own fields.
 type App struct {
 	bootstrap.Base `mapstructure:",squash" yaml:",inline"`
-	Greeting       string `mapstructure:"greeting" yaml:"greeting"`
+
+	Greeting string `mapstructure:"greeting" yaml:"greeting"`
 }
 
 func main() {
@@ -30,6 +31,7 @@ func main() {
 			slog.String("greeting", a.Greeting),
 			slog.String("env", a.Environment),
 		)
+
 		return rt.Shutdown(ctx)
 	}
 
@@ -40,6 +42,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
+
 	if err := root.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)

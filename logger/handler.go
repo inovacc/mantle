@@ -27,24 +27,28 @@ func (h redactHandler) Handle(ctx context.Context, rec slog.Record) error {
 		out.AddAttrs(h.redactAttr(a))
 		return true
 	})
+
 	return h.next.Handle(ctx, out)
 }
 
 func (h redactHandler) redactAttr(a slog.Attr) slog.Attr {
 	v := a.Value.Resolve() // collapse any LogValuer (incl. Safe) first
-	switch v.Kind() {
+	switch v.Kind() { //nolint:exhaustive
 	case slog.KindGroup:
 		grp := v.Group()
+
 		red := make([]slog.Attr, 0, len(grp))
 		for _, ga := range grp {
 			red = append(red, h.redactAttr(ga))
 		}
+
 		return slog.Attr{Key: a.Key, Value: slog.GroupValue(red...)}
 	case slog.KindAny:
 		raw := v.Any()
 		if raw != nil && infoFor(reflect.TypeOf(raw)).hasPII {
 			return slog.Attr{Key: a.Key, Value: h.r.Value(reflect.ValueOf(raw), 0)}
 		}
+
 		return slog.Attr{Key: a.Key, Value: v}
 	default:
 		return slog.Attr{Key: a.Key, Value: v}
@@ -56,6 +60,7 @@ func (h redactHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
 	for i, a := range attrs {
 		red[i] = h.redactAttr(a)
 	}
+
 	return redactHandler{next: h.next.WithAttrs(red), r: h.r}
 }
 
@@ -79,6 +84,7 @@ func (h traceHandler) Handle(ctx context.Context, rec slog.Record) error {
 			slog.String("span_id", sc.SpanID().String()),
 		)
 	}
+
 	return h.next.Handle(ctx, rec)
 }
 
@@ -100,11 +106,13 @@ func (h fanoutHandler) Enabled(ctx context.Context, l slog.Level) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
 func (h fanoutHandler) Handle(ctx context.Context, rec slog.Record) error {
 	var errs error
+
 	for _, hh := range h.handlers {
 		if hh.Enabled(ctx, rec.Level) {
 			if err := hh.Handle(ctx, rec.Clone()); err != nil {
@@ -112,6 +120,7 @@ func (h fanoutHandler) Handle(ctx context.Context, rec slog.Record) error {
 			}
 		}
 	}
+
 	return errs
 }
 
@@ -120,6 +129,7 @@ func (h fanoutHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
 	for i, hh := range h.handlers {
 		next[i] = hh.WithAttrs(attrs)
 	}
+
 	return fanoutHandler{handlers: next}
 }
 
@@ -128,5 +138,6 @@ func (h fanoutHandler) WithGroup(name string) slog.Handler {
 	for i, hh := range h.handlers {
 		next[i] = hh.WithGroup(name)
 	}
+
 	return fanoutHandler{handlers: next}
 }

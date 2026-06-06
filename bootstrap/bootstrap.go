@@ -14,9 +14,11 @@ func Configure[T Configurable](root *cobra.Command, app T, opts ...Option) error
 	for _, fn := range opts {
 		fn(&o)
 	}
+
 	if o.version != "" {
 		root.Version = o.version
 	}
+
 	registerFlags(root)
 
 	prev := root.PersistentPreRunE
@@ -26,22 +28,29 @@ func Configure[T Configurable](root *cobra.Command, app T, opts ...Option) error
 				return err
 			}
 		}
+
 		path := o.configPath
 		if cp, _ := cmd.Flags().GetString("config"); cp != "" {
 			path = cp
 		}
+
 		if err := o.source.Load(any(app), path, o.envPrefix); err != nil {
 			return fmt.Errorf("bootstrap: load config: %w", err)
 		}
+
 		b := app.base()
 		overlay(cmd.Flags(), b)
+
 		rt, err := buildRuntime(cmd.Context(), b, o, any(app))
 		if err != nil {
 			return err
 		}
+
 		cmd.SetContext(withRuntime(cmd.Context(), rt))
+
 		return nil
 	}
+
 	return nil
 }
 

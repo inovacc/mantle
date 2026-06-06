@@ -13,7 +13,9 @@ var sinkValue slog.Value
 func BenchmarkRedactValueNested(b *testing.B) {
 	rd := NewRedactor("salt")
 	rv := reflect.ValueOf(sampleUser())
+
 	b.ReportAllocs()
+
 	for b.Loop() {
 		sinkValue = rd.Value(rv, 0)
 	}
@@ -24,9 +26,12 @@ func BenchmarkLoggerRedactJSON(b *testing.B) {
 	if err != nil {
 		b.Fatal(err)
 	}
+
 	ctx := context.Background()
 	u := sampleUser()
+
 	b.ReportAllocs()
+
 	for b.Loop() {
 		lg.LogAttrs(ctx, slog.LevelInfo, "signup", slog.Any("user", u))
 	}
@@ -38,10 +43,13 @@ func BenchmarkLoggerPlainStructRedactOn(b *testing.B) {
 		A string `json:"a"`
 		N int    `json:"n"`
 	}
+
 	lg, _ := New(Config{Output: io.Discard, Redact: true})
 	ctx := context.Background()
 	p := plain{A: "x", N: 1}
+
 	b.ReportAllocs()
+
 	for b.Loop() {
 		lg.LogAttrs(ctx, slog.LevelInfo, "evt", slog.Any("p", p))
 	}
@@ -52,7 +60,9 @@ func BenchmarkLoggerSafeFilteredOut(b *testing.B) {
 	lg, _ := New(Config{Output: io.Discard, Level: "info"})
 	ctx := context.Background()
 	u := sampleUser()
+
 	b.ReportAllocs()
+
 	for b.Loop() {
 		lg.LogAttrs(ctx, slog.LevelDebug, "trace", slog.Any("user", Safe(u)))
 	}

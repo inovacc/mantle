@@ -85,9 +85,11 @@ func infoFor(t reflect.Type) *typeInfo {
 	if v, ok := infoCache.Load(t); ok {
 		return v.(*typeInfo)
 	}
+
 	pii, iface := scanType(t, map[reflect.Type]bool{})
 	ti := &typeInfo{hasPII: pii, hasIface: iface}
 	actual, _ := infoCache.LoadOrStore(t, ti)
+
 	return actual.(*typeInfo)
 }
 
@@ -97,8 +99,9 @@ func scanType(t reflect.Type, seen map[reflect.Type]bool) (hasPII, hasIface bool
 	if t == nil || seen[t] {
 		return false, false
 	}
+
 	seen[t] = true
-	switch t.Kind() {
+	switch t.Kind() { //nolint:exhaustive
 	case reflect.Interface:
 		return false, true
 	case reflect.Pointer, reflect.Slice, reflect.Array:
@@ -106,25 +109,31 @@ func scanType(t reflect.Type, seen map[reflect.Type]bool) (hasPII, hasIface bool
 	case reflect.Map:
 		kp, ki := scanType(t.Key(), seen)
 		vp, vi := scanType(t.Elem(), seen)
+
 		return kp || vp, ki || vi
 	case reflect.Struct:
 		if t == timeType {
 			return false, false
 		}
+
 		for i := range t.NumField() {
 			f := t.Field(i)
 			if f.PkgPath != "" {
 				continue
 			}
+
 			if _, ok := f.Tag.Lookup(tagKey); ok {
 				hasPII = true
 			}
+
 			fp, fi := scanType(f.Type, seen)
 			hasPII = hasPII || fp
 			hasIface = hasIface || fi
 		}
+
 		return hasPII, hasIface
 	}
+
 	return false, false
 }
 
@@ -135,19 +144,25 @@ func buildPlan(t reflect.Type) *structPlan {
 		if f.PkgPath != "" {
 			continue
 		}
+
 		name, jsonDash := fieldName(f)
 		if raw, ok := f.Tag.Lookup(tagKey); ok {
 			strat, opts := parseTag(raw)
 			if strat == stratOmit {
 				continue
 			}
+
 			fields = append(fields, fieldPlan{index: i, key: name, emit: emitStrategy, strategy: strat, keep: opts.keep})
+
 			continue
 		}
+
 		if jsonDash {
 			continue
 		}
+
 		bt := baseType(f.Type)
+
 		info := infoFor(f.Type)
 		switch {
 		case bt.Kind() == reflect.Interface || info.hasIface:
@@ -160,6 +175,7 @@ func buildPlan(t reflect.Type) *structPlan {
 			fields = append(fields, fieldPlan{index: i, key: name, emit: emitPassthrough})
 		}
 	}
+
 	return &structPlan{fields: fields}
 }
 
@@ -175,15 +191,18 @@ func (r *Redactor) Value(v reflect.Value, depth int) slog.Value {
 	if depth > r.maxDepth {
 		return slog.StringValue("[max-depth-exceeded]")
 	}
+
 	v = deref(v)
 	if !v.IsValid() {
 		return slog.AnyValue(nil)
 	}
-	switch v.Kind() {
+
+	switch v.Kind() { //nolint:exhaustive
 	case reflect.Struct:
 		if v.Type() == timeType {
 			return slog.TimeValue(v.Interface().(time.Time))
 		}
+
 		return r.structGroup(v, depth)
 	case reflect.Slice, reflect.Array:
 		return slog.AnyValue(r.list(v, depth))
@@ -196,12 +215,15 @@ func (r *Redactor) Value(v reflect.Value, depth int) slog.Value {
 
 func (r *Redactor) structGroup(v reflect.Value, depth int) slog.Value {
 	plan := infoFor(v.Type()).plan(v.Type())
+
 	attrs := make([]slog.Attr, 0, len(plan.fields))
 	for i := range plan.fields {
 		fp := &plan.fields[i]
 		fv := v.Field(fp.index)
+
 		var val slog.Value
-		switch fp.emit {
+
+		switch fp.emit { //nolint:exhaustive
 		case emitStrategy:
 			val = slog.StringValue(r.strategyString(fp, fv))
 		case emitRecurse:
@@ -211,8 +233,10 @@ func (r *Redactor) structGroup(v reflect.Value, depth int) slog.Value {
 		default:
 			val = passthrough(fv)
 		}
+
 		attrs = append(attrs, slog.Attr{Key: fp.key, Value: val})
 	}
+
 	return slog.GroupValue(attrs...)
 }
 
@@ -220,11 +244,14 @@ func (r *Redactor) list(v reflect.Value, depth int) []any {
 	if v.Kind() == reflect.Slice && v.IsNil() {
 		return nil
 	}
+
 	n := v.Len()
+
 	out := make([]any, n)
 	for i := range n {
 		out[i] = valueToAny(r.Value(v.Index(i), depth+1))
 	}
+
 	return out
 }
 
@@ -232,12 +259,14 @@ func (r *Redactor) mapp(v reflect.Value, depth int) map[string]any {
 	if v.IsNil() {
 		return nil
 	}
+
 	out := make(map[string]any, v.Len())
 	// note: keys are rendered with %v; string-renderable keys are the intended case. Distinct keys that render identically would collide.
 	it := v.MapRange()
 	for it.Next() {
 		out[fmt.Sprintf("%v", it.Key().Interface())] = valueToAny(r.Value(it.Value(), depth+1))
 	}
+
 	return out
 }
 
@@ -248,12 +277,15 @@ func (r *Redactor) mapp(v reflect.Value, depth int) map[string]any {
 func valueToAny(v slog.Value) any {
 	if v.Kind() == slog.KindGroup {
 		g := v.Group()
+
 		m := make(map[string]any, len(g))
 		for _, a := range g {
 			m[a.Key] = valueToAny(a.Value)
 		}
+
 		return m
 	}
+
 	return v.Any()
 }
 
@@ -262,7 +294,7 @@ func valueToAny(v slog.Value) any {
 // ---------------------------------------------------------------------------
 
 func (r *Redactor) strategyString(fp *fieldPlan, v reflect.Value) string {
-	switch fp.strategy {
+	switch fp.strategy { //nolint:exhaustive
 	case stratMask:
 		return mask(stringify(v), fp.keep)
 	case stratHash:
@@ -281,13 +313,16 @@ func (r *Redactor) hash(s string) string {
 // mask reveals the last keep runes and stars the rest. Note: the number of stars reveals the original length.
 func mask(s string, keep int) string {
 	runes := []rune(s)
+
 	n := len(runes)
 	if n == 0 {
 		return ""
 	}
+
 	if keep <= 0 || keep >= n {
 		return strings.Repeat("*", n)
 	}
+
 	return strings.Repeat("*", n-keep) + string(runes[n-keep:])
 }
 
@@ -296,12 +331,15 @@ func stringify(v reflect.Value) string {
 	if !v.IsValid() {
 		return ""
 	}
+
 	if v.CanInterface() {
 		if s, ok := v.Interface().(fmt.Stringer); ok {
 			return s.String()
 		}
+
 		return fmt.Sprintf("%v", v.Interface())
 	}
+
 	return fmt.Sprintf("%v", v)
 }
 
@@ -314,7 +352,8 @@ func scalarValue(v reflect.Value) slog.Value {
 	if !v.IsValid() {
 		return slog.AnyValue(nil)
 	}
-	switch v.Kind() {
+
+	switch v.Kind() { //nolint:exhaustive
 	case reflect.String:
 		return slog.StringValue(v.String())
 	case reflect.Bool:
@@ -329,6 +368,7 @@ func scalarValue(v reflect.Value) slog.Value {
 		if v.CanInterface() {
 			return slog.AnyValue(v.Interface())
 		}
+
 		return slog.StringValue(fmt.Sprintf("%v", v))
 	}
 }
@@ -337,12 +377,15 @@ func passthrough(v reflect.Value) slog.Value {
 	if !v.IsValid() {
 		return slog.AnyValue(nil)
 	}
+
 	if (v.Kind() == reflect.Pointer || v.Kind() == reflect.Interface) && v.IsNil() {
 		return slog.AnyValue(nil)
 	}
+
 	if v.CanInterface() {
 		return slog.AnyValue(v.Interface())
 	}
+
 	return slog.StringValue(fmt.Sprintf("%v", v))
 }
 
@@ -353,7 +396,9 @@ func passthrough(v reflect.Value) slog.Value {
 func parseTag(raw string) (strategy, tagOpts) {
 	parts := strings.Split(raw, ",")
 	opts := tagOpts{keep: 4}
+
 	var s strategy
+
 	switch strings.TrimSpace(parts[0]) {
 	case "", "true", "redact", "pii":
 		s = stratRedact
@@ -366,6 +411,7 @@ func parseTag(raw string) (strategy, tagOpts) {
 	default:
 		s = stratRedact
 	}
+
 	for _, p := range parts[1:] {
 		p = strings.TrimSpace(p)
 		switch {
@@ -380,6 +426,7 @@ func parseTag(raw string) (strategy, tagOpts) {
 			}
 		}
 	}
+
 	return s, opts
 }
 
@@ -388,10 +435,12 @@ func fieldName(f reflect.StructField) (name string, jsonDash bool) {
 		if tag == "-" {
 			return f.Name, true
 		}
+
 		if n := strings.Split(tag, ",")[0]; n != "" {
 			return n, false
 		}
 	}
+
 	return f.Name, false
 }
 
@@ -400,8 +449,10 @@ func deref(v reflect.Value) reflect.Value {
 		if v.IsNil() {
 			return reflect.Value{}
 		}
+
 		v = v.Elem()
 	}
+
 	return v
 }
 
@@ -409,16 +460,18 @@ func baseType(t reflect.Type) reflect.Type {
 	for t.Kind() == reflect.Pointer {
 		t = t.Elem()
 	}
+
 	return t
 }
 
 func isScalarKind(k reflect.Kind) bool {
-	switch k {
+	switch k { //nolint:exhaustive
 	case reflect.Bool, reflect.String,
 		reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
 		reflect.Float32, reflect.Float64:
 		return true
 	}
+
 	return false
 }

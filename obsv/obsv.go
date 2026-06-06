@@ -43,9 +43,9 @@ type shutdownFunc func(context.Context) error
 // Stack holds the bootstrapped OTel providers and a unified shutdown.
 type Stack struct {
 	scope    string
-	tracerP  trace.TracerProvider  // nil => no-op
-	meterP   metric.MeterProvider  // nil => no-op
-	logSink  slog.Handler          // nil => logs disabled
+	tracerP  trace.TracerProvider // nil => no-op
+	meterP   metric.MeterProvider // nil => no-op
+	logSink  slog.Handler         // nil => logs disabled
 	shutdown []shutdownFunc
 	once     sync.Once
 	shutErr  error
@@ -57,13 +57,16 @@ func New(ctx context.Context, cfg Config, info ServiceInfo, opts ...Option) (*St
 	if !cfg.Enabled {
 		return noopStack(info), nil
 	}
+
 	o := options{stdout: os.Stdout}
 	for _, fn := range opts {
 		fn(&o)
 	}
+
 	if err := cfg.normalize(); err != nil {
 		return nil, err
 	}
+
 	res, err := buildResource(ctx, info)
 	if err != nil && res == nil {
 		// resource.New returns nil only on a fatal error; a non-fatal partial
@@ -78,16 +81,17 @@ func New(ctx context.Context, cfg Config, info ServiceInfo, opts ...Option) (*St
 	// point at the (now shut-down) provider. That's acceptable: New returns an
 	// error, the caller must not use telemetry, and the propagator is not set on
 	// the failure path.
-	fail := func(e error) (*Stack, error) {
-		_ = st.Shutdown(context.Background())
+	fail := func(ctx context.Context, e error) (*Stack, error) {
+		_ = st.Shutdown(ctx)
 		return nil, e
 	}
 
 	if cfg.Signals.Traces {
 		exp, err := buildTraceExporter(ctx, cfg, o.stdout)
 		if err != nil {
-			return fail(fmt.Errorf("obsv: trace exporter: %w", err))
+			return fail(ctx, fmt.Errorf("obsv: trace exporter: %w", err))
 		}
+
 		tp := sdktrace.NewTracerProvider(
 			sdktrace.WithResource(res),
 			sdktrace.WithBatcher(exp),
@@ -101,18 +105,20 @@ func New(ctx context.Context, cfg Config, info ServiceInfo, opts ...Option) (*St
 	if cfg.Signals.Metrics {
 		exp, err := buildMetricExporter(ctx, cfg, o.stdout)
 		if err != nil {
-			return fail(fmt.Errorf("obsv: metric exporter: %w", err))
+			return fail(ctx, fmt.Errorf("obsv: metric exporter: %w", err))
 		}
+
 		mp := sdkmetric.NewMeterProvider(
 			sdkmetric.WithResource(res),
 			sdkmetric.WithReader(sdkmetric.NewPeriodicReader(exp, sdkmetric.WithInterval(cfg.MetricInterval))),
 		)
 		otel.SetMeterProvider(mp)
 		st.meterP = mp
+
 		st.shutdown = append(st.shutdown, mp.Shutdown)
 		if cfg.RuntimeMetrics {
 			if err := runtime.Start(runtime.WithMeterProvider(mp)); err != nil {
-				return fail(fmt.Errorf("obsv: runtime metrics: %w", err))
+				return fail(ctx, fmt.Errorf("obsv: runtime metrics: %w", err))
 			}
 		}
 	}
@@ -120,8 +126,9 @@ func New(ctx context.Context, cfg Config, info ServiceInfo, opts ...Option) (*St
 	if cfg.Signals.Logs {
 		exp, err := buildLogExporter(ctx, cfg, o.stdout)
 		if err != nil {
-			return fail(fmt.Errorf("obsv: log exporter: %w", err))
+			return fail(ctx, fmt.Errorf("obsv: log exporter: %w", err))
 		}
+
 		lp := sdklog.NewLoggerProvider(
 			sdklog.WithResource(res),
 			sdklog.WithProcessor(sdklog.NewBatchProcessor(exp)),
@@ -135,6 +142,7 @@ func New(ctx context.Context, cfg Config, info ServiceInfo, opts ...Option) (*St
 		propagation.TraceContext{},
 		propagation.Baggage{},
 	))
+
 	return st, nil
 }
 
@@ -143,6 +151,7 @@ func (s *Stack) Tracer(name string) trace.Tracer {
 	if s.tracerP == nil {
 		return tracenoop.NewTracerProvider().Tracer(name)
 	}
+
 	return s.tracerP.Tracer(name)
 }
 
@@ -151,6 +160,7 @@ func (s *Stack) Meter(name string) metric.Meter {
 	if s.meterP == nil {
 		return metricnoop.NewMeterProvider().Meter(name)
 	}
+
 	return s.meterP.Meter(name)
 }
 
@@ -166,7 +176,9 @@ func (s *Stack) Shutdown(ctx context.Context) error {
 		for i := len(s.shutdown) - 1; i >= 0; i-- {
 			errs = errors.Join(errs, s.shutdown[i](ctx))
 		}
+
 		s.shutErr = errs
 	})
+
 	return s.shutErr
 }

@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"log/slog"
 
 	"github.com/inovacc/mantle/logger"
@@ -37,12 +36,13 @@ func FromContext(ctx context.Context) *Runtime {
 	if rt, ok := ctx.Value(runtimeKey{}).(*Runtime); ok && rt != nil {
 		return rt
 	}
+
 	return noopRuntime()
 }
 
 func noopRuntime() *Runtime {
 	return &Runtime{
-		Logger:   slog.New(slog.NewTextHandler(io.Discard, nil)),
+		Logger:   slog.New(slog.DiscardHandler),
 		Tracer:   tracenoop.NewTracerProvider().Tracer("noop"),
 		Meter:    metricnoop.NewMeterProvider().Meter("noop"),
 		Shutdown: func(context.Context) error { return nil },
@@ -65,11 +65,15 @@ func Run(cmd *cobra.Command, core func(context.Context, *Runtime) error) error {
 // logger), then the logger, and a combined Shutdown.
 func buildRuntime(ctx context.Context, b *Base, o options, cfg any) (*Runtime, error) {
 	rt := &Runtime{Cfg: cfg, Shutdown: func(context.Context) error { return nil }}
-	var sink slog.Handler
-	var shutdowns []func(context.Context) error
+
+	var (
+		sink      slog.Handler
+		shutdowns []func(context.Context) error
+	)
 
 	if b.Features.Observability {
 		b.Observability.Enabled = true
+
 		stack, err := obsv.New(ctx, b.Observability, obsv.ServiceInfo{
 			Name:        o.appName,
 			Version:     o.version,
@@ -78,6 +82,7 @@ func buildRuntime(ctx context.Context, b *Base, o options, cfg any) (*Runtime, e
 		if err != nil {
 			return nil, fmt.Errorf("bootstrap: observability: %w", err)
 		}
+
 		sink = stack.LogSink()
 		rt.Tracer = stack.Tracer(o.appName)
 		rt.Meter = stack.Meter(o.appName)
@@ -92,9 +97,10 @@ func buildRuntime(ctx context.Context, b *Base, o options, cfg any) (*Runtime, e
 		if err != nil {
 			return nil, fmt.Errorf("bootstrap: logger: %w", err)
 		}
+
 		rt.Logger = lg
 	} else {
-		rt.Logger = slog.New(slog.NewTextHandler(io.Discard, nil))
+		rt.Logger = slog.New(slog.DiscardHandler)
 	}
 
 	if len(shutdowns) > 0 {
@@ -103,8 +109,10 @@ func buildRuntime(ctx context.Context, b *Base, o options, cfg any) (*Runtime, e
 			for i := len(shutdowns) - 1; i >= 0; i-- {
 				errs = errors.Join(errs, shutdowns[i](c))
 			}
+
 			return errs
 		}
 	}
+
 	return rt, nil
 }

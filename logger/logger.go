@@ -66,10 +66,12 @@ func parseLevel(s string) (slog.Level, error) {
 	if strings.TrimSpace(s) == "" {
 		return slog.LevelInfo, nil
 	}
+
 	var l slog.Level
 	if err := l.UnmarshalText([]byte(s)); err != nil {
 		return 0, fmt.Errorf("logger: invalid level %q: %w", s, err)
 	}
+
 	return l, nil
 }
 
@@ -84,6 +86,7 @@ func New(cfg Config, opts ...Option) (*slog.Logger, error) {
 	if cfg.Output == nil {
 		cfg.Output = os.Stdout
 	}
+
 	switch cfg.Format {
 	case "":
 		cfg.Format = FormatJSON
@@ -91,12 +94,14 @@ func New(cfg Config, opts ...Option) (*slog.Logger, error) {
 	default:
 		return nil, fmt.Errorf("logger: invalid format %q", cfg.Format)
 	}
+
 	lvl, err := parseLevel(cfg.Level)
 	if err != nil {
 		return nil, err
 	}
 
 	hopts := &slog.HandlerOptions{Level: lvl, AddSource: cfg.AddSource, ReplaceAttr: o.replaceAttr}
+
 	var base slog.Handler
 	if cfg.Format == FormatText {
 		base = slog.NewTextHandler(cfg.Output, hopts)
@@ -106,16 +111,20 @@ func New(cfg Config, opts ...Option) (*slog.Logger, error) {
 
 	// Compose: fanout (if extra sinks) -> trace enrichment -> redaction (outer).
 	sinks := append([]slog.Handler{base}, o.sinks...)
-	var h slog.Handler = base
+
+	var h = base
 	if len(sinks) > 1 {
 		h = fanoutHandler{handlers: sinks}
 	}
+
 	h = traceHandler{next: h}
+
 	if cfg.Redact {
 		rd := o.redactor
 		if rd == nil {
 			rd = NewRedactor(cfg.HashSalt)
 		}
+
 		h = redactHandler{next: h, r: rd}
 	}
 
@@ -123,6 +132,7 @@ func New(cfg Config, opts ...Option) (*slog.Logger, error) {
 	if cfg.ServiceName != "" {
 		lg = lg.With(slog.String("service", cfg.ServiceName))
 	}
+
 	return lg, nil
 }
 
@@ -133,9 +143,12 @@ func Init(cfg Config, opts ...Option) (*slog.Logger, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	slog.SetDefault(lg)
+
 	if cfg.HashSalt != "" {
 		SetHashSalt(cfg.HashSalt)
 	}
+
 	return lg, nil
 }
